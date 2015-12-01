@@ -1,5 +1,6 @@
 package com.zone24x7.b2gdev.b2g_updater;
 
+import android.os.PowerManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -32,5 +33,8 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
         Toast.makeText(this.getContext(),
                 "Button pressed!",
                 Toast.LENGTH_SHORT).show();
+
+        PowerManager pm = (PowerManager) this.getContext().getSystemService(this.getContext().POWER_SERVICE);
+        pm.reboot("Just");
     }
 }

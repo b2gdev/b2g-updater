@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.zone24x7.b2gdev.b2g_updater">
 
+    <uses-permission android:name="android.permission.REBOOT"/>
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
