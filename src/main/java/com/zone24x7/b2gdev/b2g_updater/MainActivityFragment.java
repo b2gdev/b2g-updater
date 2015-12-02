@@ -31,6 +31,7 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
         Button rebootBtn = (Button) ret.findViewById(R.id.button);
         rebootBtn.setOnClickListener(this);
 
+        /*
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -45,7 +46,7 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
         IntentFilter filter = new IntentFilter();
         filter.addAction("android.settings.SYSTEM_UPDATE_SETTINGS");
         this.getContext().registerReceiver(receiver, filter);
-
+        */
         return ret;
     }
 
