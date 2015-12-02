@@ -3,7 +3,7 @@ package com.zone24x7.b2gdev.b2g_updater;
 
 import android.os.AsyncTask;
 
-public class DownloadFileFromURL extends AsyncTask<String, Void, String> {
+public class DownloadFileFromURL extends AsyncTask<String, Integer, String> {
 
     MainActivityFragment container;
 
@@ -17,13 +17,21 @@ public class DownloadFileFromURL extends AsyncTask<String, Void, String> {
         try {
             // Emulate a long running process
             // In this case we are pretending to fetch the URL content
-            Thread.sleep(3000); // This takes 3 seconds
+            for (int i = 0 ; i < 10 ; i++){
+                Thread.sleep(1000);
+                publishProgress((int) ((i / (float) 10) * 100));
+            }
+
 
             // If you are implementing actual fetch API, the call would be something like this,
             // API.fetchURL(params[0]);
         }catch(Exception ex) {}
         return "Content from the URL "+params[0];
 
+    }
+
+    protected void onProgressUpdate(Integer... progress) {
+        container.setProgress(progress[0]);
     }
 
     @Override

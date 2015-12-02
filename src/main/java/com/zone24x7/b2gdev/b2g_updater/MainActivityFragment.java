@@ -73,13 +73,18 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
     public void showProgressBar() {
         ProgressBar progress = (ProgressBar)getActivity().findViewById(R.id.progressBarFetch);
         progress.setVisibility(View.VISIBLE);
-        progress.setIndeterminate(true);
+        progress.setIndeterminate(false);
+        progress.setMax(100);
     }
 
     public void hideProgressBar() {
         ProgressBar progress = (ProgressBar)getActivity().findViewById(R.id.progressBarFetch);
         progress.setVisibility(View.GONE);
+    }
 
+    public void setProgress(int progressVal) {
+        ProgressBar progress = (ProgressBar)getActivity().findViewById(R.id.progressBarFetch);
+        progress.setProgress(progressVal);
     }
 
     protected boolean isTaskRunning(DownloadFileFromURL task) {
