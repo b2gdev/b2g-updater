@@ -19,7 +19,7 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                 <action android:name="android.settings.SYSTEM_UPDATE_SETTINGS" />
+                <action android:name="android.settings.SYSTEM_UPDATE_SETTINGS" />
                 <!--<category android:name="android.intent.category.LAUNCHER" />-->
             </intent-filter>
         </activity>
@@ -27,7 +27,11 @@
         <receiver
             android:name=".SystemUpdateReceiver"
             android:enabled="true"
-            android:exported="false"></receiver>
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.settings.SYSTEM_UPDATE_SETTINGS" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
