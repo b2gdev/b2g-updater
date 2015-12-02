@@ -18,7 +18,7 @@ import android.widget.Toast;
  */
 public class MainActivityFragment extends Fragment implements View.OnClickListener {
 
-    private BroadcastReceiver receiver;
+
 
     public MainActivityFragment() {
     }
@@ -31,22 +31,6 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
         Button rebootBtn = (Button) ret.findViewById(R.id.button);
         rebootBtn.setOnClickListener(this);
 
-        /*
-        receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (intent.getAction().equals("android.settings.SYSTEM_UPDATE_SETTINGS")){
-                    Toast.makeText(context,
-                            "Yup! Received a system update broadcast",
-                            Toast.LENGTH_SHORT).show();
-                }
-            }
-        };
-
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("android.settings.SYSTEM_UPDATE_SETTINGS");
-        this.getContext().registerReceiver(receiver, filter);
-        */
         return ret;
     }
 
