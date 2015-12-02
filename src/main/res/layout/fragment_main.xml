@@ -38,6 +38,14 @@
             android:text="@string/str_update"
             android:id="@+id/button" />
 
+        <ProgressBar
+            android:id="@+id/progressBarFetch"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:visibility="gone" />
+
     </LinearLayout>
 
 
