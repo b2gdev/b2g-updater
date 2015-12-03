@@ -63,6 +63,9 @@ public class DownloadFileFromURL extends AsyncTask<String, Integer, String> {
                 // allow canceling with back button
                 if (isCancelled()) {
                     input.close();
+                    output.close();
+                    dest.delete();
+                    mWakeLock.release();
                     return null;
                 }
                 total += count;
@@ -104,7 +107,6 @@ public class DownloadFileFromURL extends AsyncTask<String, Integer, String> {
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                 getClass().getName());
         mWakeLock.acquire();
-        container.showProgressBar();
     }
 
     @Override
@@ -115,12 +117,14 @@ public class DownloadFileFromURL extends AsyncTask<String, Integer, String> {
         mWakeLock.release();
 
         if(container!=null && container.getActivity()!=null) {
-            container.hideProgressBar();
+
 
             if (result != null)
                 Toast.makeText(container.getActivity(), "Download error: " + result, Toast.LENGTH_LONG).show();
             else
                 Toast.makeText(container.getActivity(),"File downloaded", Toast.LENGTH_SHORT).show();
+
+            this.container.doneDownloadingOTA(result);
 
             this.container = null;
         }

@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -20,7 +19,9 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
     private DownloadFileFromURL mDownloadOTATask;
     private CheckForUpdates mUpdateListTask;
     private View mMainView;
-    private enum ButtonState {UPDATE,CANCEL,DOWNLOAD};
+    private String mNewUpdate = null;
+
+    private enum ButtonState {UPDATE,CANCEL,DOWNLOAD,APPLY};
     ButtonState btnState = ButtonState.UPDATE;
 
     public UpdaterFragment() {
@@ -61,6 +62,7 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
                 cancelTasks();
                 break;
             case DOWNLOAD:
+                startDownload(getString(R.string.url_test_ota_location));
                 break;
             default:
                 break;
@@ -70,7 +72,9 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
     private void cancelTasks() {
         if(isTaskRunning(mDownloadOTATask)){
             mDownloadOTATask.cancel(true);
-
+            showDownloadBtn();
+            TextView statusLabel = (TextView) mMainView.findViewById(R.id.statusTextView);
+            statusLabel.setText(getText(R.string.str_update_available)+" "+ mNewUpdate);
         }
         if(isTaskRunning(mUpdateListTask)) {
             mUpdateListTask.cancel(true);
@@ -91,16 +95,52 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
     }
 
     public void doneUpdates(String update) {
-        hideProgressBar();
+
+        boolean isUpdateAvailable = false;
         TextView statusLabel = (TextView) mMainView.findViewById(R.id.statusTextView);
+
+        hideProgressBar();
+
         if(update != null) {
             if(isUpdateValid(update)) {
-                statusLabel.setText(getText(R.string.str_update_available) + " " + update);
-            }else
-                statusLabel.setText(getText(R.string.str_update_not_available));
-        }else
+                isUpdateAvailable = true;
+                mNewUpdate = update;
+            }
+        }
+
+        if(isUpdateAvailable){
+            statusLabel.setText(getText(R.string.str_update_available) + " " + mNewUpdate);
+            showDownloadBtn();
+        }else{
             statusLabel.setText(getText(R.string.str_update_not_available));
-        showUpdateBtn();
+            showUpdateBtn();
+        }
+    }
+
+    public void doneDownloadingOTA(String error) {
+
+        hideProgressBar();
+
+        TextView statusLabel = (TextView) mMainView.findViewById(R.id.statusTextView);
+        if(error != null){
+            statusLabel.setText(getText(R.string.str_dl_failed));
+            showDownloadBtn();
+        }else{
+            statusLabel.setText(getText(R.string.str_dl_done));
+            showAppyUpdateBtn();
+        }
+    }
+
+    private void showDownloadBtn() {
+        Button rebootBtn = (Button) mMainView.findViewById(R.id.button);
+        rebootBtn.setText(getText(R.string.str_download));
+        btnState = ButtonState.DOWNLOAD;
+    }
+
+    private void showAppyUpdateBtn() {
+        Button rebootBtn = (Button) mMainView.findViewById(R.id.button);
+        rebootBtn.setText(getText(R.string.str_install));
+        btnState = ButtonState.APPLY;
     }
 
     private boolean isUpdateValid(String update) {
@@ -117,9 +157,13 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
     }
 
     private void startDownload(String urlS) {
+
+        showProgressBar();
+        TextView statusLabel = (TextView) mMainView.findViewById(R.id.statusTextView);
+        statusLabel.setText(getText(R.string.str_dl_updates));
         mDownloadOTATask = new DownloadFileFromURL(this);
         mDownloadOTATask.execute(urlS);
-
+        showCancelBtn();
     }
 
     @Override
@@ -127,17 +171,18 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
         // Sync UI state to current fragment and task state
         if(isTaskRunning(mDownloadOTATask) || isTaskRunning(mUpdateListTask)) {
             showProgressBar();
+
         }else {
             hideProgressBar();
         }
-        //if(mResult!=null) {
-        //    populateResult(mResult);
+        //if(mNewUpdate!=null) {
+        //    populateResult(mNewUpdate);
         //}
         super.onActivityCreated(savedInstanceState);
     }
 
 
-    public void showProgressBar() {
+    private void showProgressBar() {
         ProgressBar progress = (ProgressBar)getActivity().findViewById(R.id.progressBarFetch);
         progress.setVisibility(View.VISIBLE);
         progress.setIndeterminate(true);
@@ -155,7 +200,7 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
         btnState = ButtonState.UPDATE;
     }
 
-    public void hideProgressBar() {
+    private void hideProgressBar() {
         ProgressBar progress = (ProgressBar)getActivity().findViewById(R.id.progressBarFetch);
         progress.setVisibility(View.INVISIBLE);
     }
