@@ -7,11 +7,14 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.URLUtil;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Date;
 
 /**
@@ -22,7 +25,8 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
     private DownloadFileFromURL mDownloadOTATask;
     private CheckForUpdates mUpdateListTask;
     private View mMainView;
-    private String mNewUpdate = null;
+    private String mNewUpdateVersion = null;
+    private String mNewUpdateUrl = null;
 
     private enum ButtonState {UPDATE,CANCEL,DOWNLOAD,APPLY};
     ButtonState btnState = ButtonState.UPDATE;
@@ -66,7 +70,10 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
                 cancelTasks();
                 break;
             case DOWNLOAD:
-                startDownload(getString(R.string.url_test_ota_location));
+                startDownload(mNewUpdateUrl);
+                break;
+            case APPLY:
+
                 break;
             default:
                 break;
@@ -78,7 +85,7 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
             mDownloadOTATask.cancel(true);
             showDownloadBtn();
             TextView statusLabel = (TextView) mMainView.findViewById(R.id.statusTextView);
-            statusLabel.setText(getText(R.string.str_update_available)+" "+ mNewUpdate);
+            statusLabel.setText(getText(R.string.str_update_available)+" "+ mNewUpdateVersion);
         }
         if(isTaskRunning(mUpdateListTask)) {
             mUpdateListTask.cancel(true);
@@ -118,12 +125,12 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
             updateLastCheckedTime();
             if(isUpdateValid(update)) {
                 isUpdateAvailable = true;
-                mNewUpdate = update;
+                mNewUpdateVersion = update;
             }
         }
 
         if(isUpdateAvailable){
-            statusLabel.setText(getText(R.string.str_update_available) + " " + mNewUpdate);
+            statusLabel.setText(getText(R.string.str_update_available) + " " + mNewUpdateVersion);
             showDownloadBtn();
         }else{
             statusLabel.setText(getText(R.string.str_update_not_available));
@@ -167,7 +174,19 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
             retVal = true;
         };
 
+        if(retVal){
+            String tempURL = generateDownloadURL(update);
+            if(!URLUtil.isValidUrl(tempURL)) {
+                retVal = false;
+                mNewUpdateUrl = null;
+            }else
+                mNewUpdateUrl = tempURL;
+        }
         return retVal;
+    }
+
+    private String generateDownloadURL(String version) {
+        return getString(R.string.url_github_release)+version+"/update-"+version+".zip";
     }
 
     private void startDownload(String urlS) {
@@ -189,8 +208,8 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
         }else {
             hideProgressBar();
         }
-        //if(mNewUpdate!=null) {
-        //    populateResult(mNewUpdate);
+        //if(mNewUpdateVersion!=null) {
+        //    populateResult(mNewUpdateVersion);
         //}
         super.onActivityCreated(savedInstanceState);
     }
