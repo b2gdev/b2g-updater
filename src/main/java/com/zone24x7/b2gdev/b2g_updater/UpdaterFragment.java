@@ -11,6 +11,9 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.io.File;
+import java.util.Date;
+
 /**
  * A placeholder fragment containing a simple view.
  */
@@ -35,6 +38,7 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
         Button rebootBtn = (Button) mMainView.findViewById(R.id.button);
         rebootBtn.setOnClickListener(this);
         setRetainInstance(true);
+        updateLastCheckedTime();
         return mMainView;
     }
 
@@ -85,6 +89,15 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
         hideProgressBar();
     }
 
+    private void updateLastCheckedTime(){
+        TextView lastEditedLabel = (TextView) mMainView.findViewById(R.id.lastCheckValue);
+        File file = new File(getString(R.string.path_save_updates));
+        if(file.exists()){
+            Date lastModified = new Date(file.lastModified());
+            lastEditedLabel.setText(lastModified.toString());
+        }
+    }
+
     private void getUpdates() {
         showProgressBar();
         TextView statusLabel = (TextView) mMainView.findViewById(R.id.statusTextView);
@@ -102,6 +115,7 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
         hideProgressBar();
 
         if(update != null) {
+            updateLastCheckedTime();
             if(isUpdateValid(update)) {
                 isUpdateAvailable = true;
                 mNewUpdate = update;
