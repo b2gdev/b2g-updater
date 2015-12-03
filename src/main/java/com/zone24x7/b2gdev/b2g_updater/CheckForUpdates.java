@@ -13,6 +13,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -64,6 +65,11 @@ public class CheckForUpdates  extends AsyncTask<String, Integer, String> {
                 // allow canceling with back button
                 if (isCancelled()) {
                     input.close();
+                    output.close();
+                    PrintWriter writer = new PrintWriter(dest);
+                    writer.print("");
+                    writer.close();
+                    mWakeLock.release();
                     return null;
                 }
                 total += count;

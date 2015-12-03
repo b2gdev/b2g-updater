@@ -3,6 +3,7 @@
     <string name="action_settings">Settings</string>
     <string name="str_reboot">Reboot</string>
     <string name="str_update">Update</string>
+    <string name="str_cancel">Cancel</string>
     <string name="str_fetching_updates">Checking for updates..</string>
     <string name="str_update_available">A new update is available: </string>
     <string name="str_update_not_available">No updates are available</string>
