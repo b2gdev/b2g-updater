@@ -1,5 +1,6 @@
 package com.zone24x7.b2gdev.b2g_updater;
 
+import android.os.Build;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -57,9 +58,24 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
         hideProgressBar();
         TextView statusLabel = (TextView) mMainView.findViewById(R.id.statusTextView);
         if(update != null) {
-            statusLabel.setText(getText(R.string.str_update_available)+" "+update);
+            if(isUpdateValid(update)) {
+                statusLabel.setText(getText(R.string.str_update_available) + " " + update);
+            }else
+                statusLabel.setText(getText(R.string.str_update_not_available));
         }else
             statusLabel.setText(getText(R.string.str_update_not_available));
+    }
+
+    private boolean isUpdateValid(String update) {
+        boolean retVal = false;
+        if(update.length() == Build.ID.length()){
+            if(update.compareTo(Build.ID) != 0){
+                retVal = true;
+            }
+        }else
+            retVal = true;
+
+        return retVal;
     }
 
     private void startDownload(String urlS) {

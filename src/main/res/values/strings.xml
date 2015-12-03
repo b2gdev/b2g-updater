@@ -4,7 +4,7 @@
     <string name="str_reboot">Reboot</string>
     <string name="str_update">Update</string>
     <string name="str_fetching_updates">Checking for updates..</string>
-    <string name="str_update_available">A new update is available</string>
+    <string name="str_update_available">A new update is available: </string>
     <string name="str_update_not_available">No updates are available</string>
     <string name="str_dl_updates">Downloading update..</string>
     <string name="str_done">Done</string>
