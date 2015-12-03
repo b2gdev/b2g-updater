@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 /**
@@ -46,9 +47,17 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
     }
 
     private void getUpdates(String urlS) {
+        showProgressBar();
+        TextView statusLabel = (TextView) mMainView.findViewById(R.id.statusTextView);
+        statusLabel.setText(getText(R.string.str_fetching_updates));
         mUpdateListTask = new CheckForUpdates(this);
         mUpdateListTask.execute(urlS);
+    }
 
+    public void doneUpdates(String urlS) {
+        hideProgressBar();
+        TextView statusLabel = (TextView) mMainView.findViewById(R.id.statusTextView);
+        statusLabel.setText(getText(R.string.str_update_available));
     }
 
     private void startDownload(String urlS) {
@@ -81,7 +90,7 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
 
     public void hideProgressBar() {
         ProgressBar progress = (ProgressBar)getActivity().findViewById(R.id.progressBarFetch);
-        progress.setVisibility(View.GONE);
+        progress.setVisibility(View.INVISIBLE);
         Button rebootBtn = (Button) mMainView.findViewById(R.id.button);
         rebootBtn.setEnabled(true);
     }

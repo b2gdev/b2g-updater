@@ -94,7 +94,6 @@ public class CheckForUpdates  extends AsyncTask<String, Integer, String> {
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                 getClass().getName());
         mWakeLock.acquire();
-        container.showProgressBar();
     }
 
     @Override
@@ -104,7 +103,7 @@ public class CheckForUpdates  extends AsyncTask<String, Integer, String> {
         mWakeLock.release();
         if(container!=null && container.getActivity()!=null) {
 
-            container.hideProgressBar();
+            container.doneUpdates(result);
 
             if (result != null)
                 Toast.makeText(container.getActivity(), "Download error: " + result, Toast.LENGTH_LONG).show();
