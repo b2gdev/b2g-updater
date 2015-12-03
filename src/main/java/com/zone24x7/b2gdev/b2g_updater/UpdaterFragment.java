@@ -38,6 +38,13 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
     }
 
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        cancelTasks();
+        mMainView = null;
+    }
+
+    @Override
     public void onClick(View v) {
 
 //        Toast.makeText(this.getContext(), "Button pressed!", Toast.LENGTH_SHORT).show();
