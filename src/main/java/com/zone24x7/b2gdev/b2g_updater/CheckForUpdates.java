@@ -5,8 +5,11 @@ import android.os.AsyncTask;
 import android.os.PowerManager;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -103,12 +106,30 @@ public class CheckForUpdates  extends AsyncTask<String, Integer, String> {
         mWakeLock.release();
         if(container!=null && container.getActivity()!=null) {
 
-            container.doneUpdates(result);
-
-            if (result != null)
+            if (result != null) {
                 Toast.makeText(container.getActivity(), "Download error: " + result, Toast.LENGTH_LONG).show();
-            else
-                Toast.makeText(container.getActivity(),"Got list of updates", Toast.LENGTH_SHORT).show();
+                container.doneUpdates(null);
+            }else {
+                Toast.makeText(container.getActivity(), "Got list of updates", Toast.LENGTH_SHORT).show();
+                BufferedReader buf = null;
+                try {
+                    buf = new BufferedReader(new FileReader(container.getActivity().getString(R.string.path_save_updates)));
+                    result = buf.readLine();
+                } catch (FileNotFoundException e) {
+                    result = null;
+                } catch (IOException e) {
+                    result = null;
+                }
+
+                try {
+                    if(buf != null)
+                        buf.close();
+                } catch (IOException e) {
+                    // ignore
+                }
+
+                container.doneUpdates(result);
+            }
 
             this.container = null;
         }

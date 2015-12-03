@@ -36,9 +36,8 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-        Toast.makeText(this.getContext(),
-                "Button pressed!",
-                Toast.LENGTH_SHORT).show();
+
+//        Toast.makeText(this.getContext(), "Button pressed!", Toast.LENGTH_SHORT).show();
 
 //        PowerManager pm = (PowerManager) this.getContext().getSystemService(this.getContext().POWER_SERVICE);
 //        pm.reboot("Just");
@@ -54,10 +53,13 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
         mUpdateListTask.execute(urlS);
     }
 
-    public void doneUpdates(String urlS) {
+    public void doneUpdates(String update) {
         hideProgressBar();
         TextView statusLabel = (TextView) mMainView.findViewById(R.id.statusTextView);
-        statusLabel.setText(getText(R.string.str_update_available));
+        if(update != null) {
+            statusLabel.setText(getText(R.string.str_update_available)+" "+update);
+        }else
+            statusLabel.setText(getText(R.string.str_update_not_available));
     }
 
     private void startDownload(String urlS) {
