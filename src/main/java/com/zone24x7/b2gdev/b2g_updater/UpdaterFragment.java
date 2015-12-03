@@ -1,10 +1,5 @@
 package com.zone24x7.b2gdev.b2g_updater;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.PowerManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -19,7 +14,8 @@ import android.widget.Toast;
  */
 public class UpdaterFragment extends Fragment implements View.OnClickListener {
 
-    private DownloadFileFromURL mTask;
+    private DownloadFileFromURL mDownloadOTATask;
+    private CheckForUpdates mUpdateListTask;
     private View mMainView;
     String mResult;
 
@@ -45,20 +41,26 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
 
 //        PowerManager pm = (PowerManager) this.getContext().getSystemService(this.getContext().POWER_SERVICE);
 //        pm.reboot("Just");
-        startDownload(getString(R.string.url_ota_info_location));
+//        startDownload(getString(R.string.url_ota_info_location));
+        getUpdates(getString(R.string.url_ota_info_location));
+    }
+
+    private void getUpdates(String urlS) {
+        mUpdateListTask = new CheckForUpdates(this);
+        mUpdateListTask.execute(urlS);
 
     }
 
     private void startDownload(String urlS) {
-        mTask = new DownloadFileFromURL(this);
-        mTask.execute(urlS);
+        mDownloadOTATask = new DownloadFileFromURL(this);
+        mDownloadOTATask.execute(urlS);
 
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         // Sync UI state to current fragment and task state
-        if(isTaskRunning(mTask)) {
+        if(isTaskRunning(mDownloadOTATask)) {
             showProgressBar();
         }else {
             hideProgressBar();

@@ -1,6 +1,5 @@
 package com.zone24x7.b2gdev.b2g_updater;
 
-
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.PowerManager;
@@ -14,19 +13,18 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class DownloadFileFromURL extends AsyncTask<String, Integer, String> {
+
+public class CheckForUpdates  extends AsyncTask<String, Integer, String> {
 
     UpdaterFragment container;
     private PowerManager.WakeLock mWakeLock;
 
-    public DownloadFileFromURL(UpdaterFragment f) {
+    public CheckForUpdates(UpdaterFragment f) {
         this.container = f;
     }
 
-
     @Override
     protected String doInBackground(String... params) {
-
         OutputStream output = null;
         InputStream input = null;
         HttpURLConnection connection = null;
@@ -52,7 +50,7 @@ public class DownloadFileFromURL extends AsyncTask<String, Integer, String> {
 
             // Output stream
             //final File dest = new File("/sdcard/file_name.extension");
-            final File dest = new File(container.getActivity().getString(R.string.path_test_target));
+            final File dest = new File(container.getActivity().getString(R.string.path_save_updates));
             output = new FileOutputStream(dest);
 
             byte data[] = new byte[4096];
@@ -66,9 +64,6 @@ public class DownloadFileFromURL extends AsyncTask<String, Integer, String> {
                     return null;
                 }
                 total += count;
-                // publishing the progress....
-                if (lengthOfFile > 0) // only if total length is known
-                    publishProgress((int) (total * 100 / lengthOfFile));
                 output.write(data, 0, count);
             }
 
@@ -88,11 +83,6 @@ public class DownloadFileFromURL extends AsyncTask<String, Integer, String> {
         }
 
         return null;
-
-    }
-
-    protected void onProgressUpdate(Integer... progress) {
-        container.setProgress(progress[0]);
     }
 
     @Override
@@ -111,16 +101,15 @@ public class DownloadFileFromURL extends AsyncTask<String, Integer, String> {
     protected void onPostExecute(String result) {
         super.onPostExecute(result);
         // The activity can be null if it is thrown out by Android while task is running!
-
         mWakeLock.release();
-
         if(container!=null && container.getActivity()!=null) {
+
             container.hideProgressBar();
 
             if (result != null)
                 Toast.makeText(container.getActivity(), "Download error: " + result, Toast.LENGTH_LONG).show();
             else
-                Toast.makeText(container.getActivity(),"File downloaded", Toast.LENGTH_SHORT).show();
+                Toast.makeText(container.getActivity(),"Got list of updates", Toast.LENGTH_SHORT).show();
 
             this.container = null;
         }
