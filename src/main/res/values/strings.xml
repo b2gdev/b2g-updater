@@ -18,10 +18,10 @@
     <string name="str_default_last_update_time">Never</string>
     <string name="str_last_update_msg">Last checked for updates on :   </string>
     <string name="url_ota_info_location">https://www.dropbox.com/s/5bzkyu7ik3tkww5/latest-update?dl=1</string>
-    <string name="url_test_ota_location">http://www.ixbt.com/cpu/images/method-2009/pshpro/testphoto.png</string>
-    <string name="url_test_ota_location_2">https://www.dropbox.com/s/ta7fe2ya6xekdjx/update-v4.2.8-recovery-3.zip?dl=1</string>
+    <string name="url_test_ota_location">https://www.dropbox.com/s/ta7fe2ya6xekdjx/update-v4.2.8-recovery-3.zip?dl=1</string>
     <string name="url_github_release">https://github.com/b2gdev/Android-JB-4.1.2/releases/download/</string>
     <string name="path_download_target">/cache/update.zip</string>
-    <string name="path_test_target">/sdcard/file.test</string>
-    <string name="path_save_updates">/sdcard/latest.version</string>
+    <string name="path_updates">/cache/latest.version</string>
+    <!--<string name="path_test_target">/sdcard/file.test</string>-->
+    <!--<string name="path_test_updates">/sdcard/latest.version</string>-->
 </resources>

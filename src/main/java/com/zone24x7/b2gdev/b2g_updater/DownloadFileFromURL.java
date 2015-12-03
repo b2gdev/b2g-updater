@@ -52,7 +52,7 @@ public class DownloadFileFromURL extends AsyncTask<String, Integer, String> {
 
             // Output stream
             //final File dest = new File("/sdcard/file_name.extension");
-            final File dest = new File(container.getActivity().getString(R.string.path_test_target));
+            final File dest = new File(container.getActivity().getString(R.string.path_download_target));
             output = new FileOutputStream(dest);
 
             byte data[] = new byte[4096];
@@ -122,7 +122,7 @@ public class DownloadFileFromURL extends AsyncTask<String, Integer, String> {
             if (result != null)
                 Toast.makeText(container.getActivity(), "Download error: " + result, Toast.LENGTH_LONG).show();
             else
-                Toast.makeText(container.getActivity(),"File downloaded", Toast.LENGTH_SHORT).show();
+                Toast.makeText(container.getActivity(),"Update downloaded", Toast.LENGTH_SHORT).show();
 
             this.container.doneDownloadingOTA(result);
 

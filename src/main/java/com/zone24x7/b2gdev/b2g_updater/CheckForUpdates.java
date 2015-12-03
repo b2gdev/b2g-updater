@@ -55,8 +55,8 @@ public class CheckForUpdates  extends AsyncTask<String, Integer, String> {
             input = connection.getInputStream();
 
             // Output stream
-            //final File dest = new File("/sdcard/file_name.extension");
-            final File dest = new File(container.getActivity().getString(R.string.path_save_updates));
+            //final File dest = new File(container.getActivity().getString(R.string.path_test_updates));
+            final File dest = new File(container.getActivity().getString(R.string.path_updates));
             output = new FileOutputStream(dest);
 
             byte data[] = new byte[4096];
@@ -118,10 +118,10 @@ public class CheckForUpdates  extends AsyncTask<String, Integer, String> {
                 Toast.makeText(container.getActivity(), "Download error: " + result, Toast.LENGTH_LONG).show();
                 container.doneUpdates(null);
             }else {
-                Toast.makeText(container.getActivity(), "Got list of updates", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(container.getActivity(), "Got list of updates", Toast.LENGTH_SHORT).show();
                 BufferedReader buf = null;
                 try {
-                    buf = new BufferedReader(new FileReader(container.getActivity().getString(R.string.path_save_updates)));
+                    buf = new BufferedReader(new FileReader(container.getActivity().getString(R.string.path_updates)));
                     result = buf.readLine();
                 } catch (IOException e) {
                     result = null;

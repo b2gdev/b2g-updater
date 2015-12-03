@@ -12,9 +12,7 @@ public class SystemUpdateReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction().equals("android.settings.SYSTEM_UPDATE_SETTINGS")){
-            Toast.makeText(context,
-                    "Yup! Received a system update broadcast",
-                    Toast.LENGTH_SHORT).show();
+           // ignore
         }
     }
 }

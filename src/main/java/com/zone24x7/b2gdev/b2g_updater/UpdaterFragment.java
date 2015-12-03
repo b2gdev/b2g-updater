@@ -62,12 +62,6 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View v) {
 
-//        Toast.makeText(this.getContext(), "Button pressed!", Toast.LENGTH_SHORT).show();
-
-//        PowerManager pm = (PowerManager) this.getContext().getSystemService(this.getContext().POWER_SERVICE);
-//        pm.reboot("Just");
-//        startDownload(getString(R.string.url_ota_info_location));
-
         switch (btnState){
             case UPDATE:
                 getUpdates();
@@ -76,8 +70,8 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
                 cancelTasks();
                 break;
             case DOWNLOAD:
-                //startDownload(mNewUpdateUrl);
-                startDownload(getString(R.string.url_test_ota_location_2));
+                startDownload(mNewUpdateUrl);
+                //startDownload(getString(R.string.url_test_ota_location));
                 break;
             case APPLY:
                 installOTA();
@@ -94,7 +88,7 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
         TextView statusLabel = (TextView) mMainView.findViewById(R.id.statusTextView);
         statusLabel.setText(getText(R.string.str_installing));
         try {
-            File otaFile = new File(getString(R.string.path_test_target));
+            File otaFile = new File(getString(R.string.path_download_target));
             // Verify the cryptographic signature before installing it.
             RecoverySystem.verifyPackage(otaFile, null, null);
             // Reboots the device into recovery mode to install the update package.
@@ -125,7 +119,7 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
 
     private void updateLastCheckedTime(){
         TextView lastEditedLabel = (TextView) mMainView.findViewById(R.id.lastCheckValue);
-        File file = new File(getString(R.string.path_save_updates));
+        File file = new File(getString(R.string.path_updates));
         if(file.exists()){
             Date lastModified = new Date(file.lastModified());
             lastEditedLabel.setText(lastModified.toString());
