@@ -2,6 +2,7 @@ package com.zone24x7.b2gdev.b2g_updater;
 
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.RecoverySystem;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,6 +12,7 @@ import android.webkit.URLUtil;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +20,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.security.GeneralSecurityException;
 import java.util.Date;
 
 /**
@@ -73,14 +76,35 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
                 cancelTasks();
                 break;
             case DOWNLOAD:
-                startDownload(mNewUpdateUrl);
+                //startDownload(mNewUpdateUrl);
+                startDownload(getString(R.string.url_test_ota_location_2));
                 break;
             case APPLY:
-
+                installOTA();
                 break;
             default:
                 break;
         }
+    }
+
+    private void installOTA() {
+
+        Button rebootBtn = (Button) mMainView.findViewById(R.id.button);
+        rebootBtn.setEnabled(false);
+        TextView statusLabel = (TextView) mMainView.findViewById(R.id.statusTextView);
+        statusLabel.setText(getText(R.string.str_installing));
+        try {
+            File otaFile = new File(getString(R.string.path_test_target));
+            // Verify the cryptographic signature before installing it.
+            RecoverySystem.verifyPackage(otaFile, null, null);
+            // Reboots the device into recovery mode to install the update package.
+            RecoverySystem.installPackage(getActivity(), otaFile);
+        } catch (IOException | GeneralSecurityException e) {
+            //e.printStackTrace();
+            Toast.makeText(getActivity(), "Install error: " + e.toString(), Toast.LENGTH_LONG).show();
+            statusLabel.setText(getText(R.string.str_install_failed));
+        }
+        rebootBtn.setEnabled(true);
     }
 
     private void cancelTasks() {
