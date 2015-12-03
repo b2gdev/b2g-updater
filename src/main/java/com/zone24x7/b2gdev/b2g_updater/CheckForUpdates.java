@@ -3,6 +3,7 @@ package com.zone24x7.b2gdev.b2g_updater;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.PowerManager;
+import android.webkit.URLUtil;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -15,6 +16,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 
@@ -121,8 +123,6 @@ public class CheckForUpdates  extends AsyncTask<String, Integer, String> {
                 try {
                     buf = new BufferedReader(new FileReader(container.getActivity().getString(R.string.path_save_updates)));
                     result = buf.readLine();
-                } catch (FileNotFoundException e) {
-                    result = null;
                 } catch (IOException e) {
                     result = null;
                 }
@@ -133,7 +133,26 @@ public class CheckForUpdates  extends AsyncTask<String, Integer, String> {
                 } catch (IOException e) {
                     // ignore
                 }
-
+                /*
+                if(result != null) {
+                    String tempURL = container.generateDownloadURL(result);
+                    if (!URLUtil.isValidUrl(tempURL)) {
+                        result = null;
+                    } else {
+                        try {
+                            URL u = new URL(tempURL);
+                            HttpURLConnection huc = (HttpURLConnection) u.openConnection();
+                            huc.setRequestMethod("HEAD");
+                            int tempVal =  huc.getResponseCode();
+                            if (tempVal != HttpURLConnection.HTTP_OK){
+                                result = null;
+                            }
+                        } catch (IOException e) {
+                            result = null;
+                        }
+                    }
+                }
+                */
                 container.doneUpdates(result);
             }
 

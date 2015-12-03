@@ -13,7 +13,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.util.Date;
 
@@ -185,7 +188,7 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
         return retVal;
     }
 
-    private String generateDownloadURL(String version) {
+    public String generateDownloadURL(String version) {
         return getString(R.string.url_github_release)+version+"/update-"+version+".zip";
     }
 
