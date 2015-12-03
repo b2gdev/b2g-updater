@@ -17,13 +17,13 @@ import android.widget.Toast;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainActivityFragment extends Fragment implements View.OnClickListener {
+public class UpdaterFragment extends Fragment implements View.OnClickListener {
 
     private DownloadFileFromURL mTask;
     private View mMainView;
     String mResult;
 
-    public MainActivityFragment() {
+    public UpdaterFragment() {
     }
 
     @Override
@@ -45,8 +45,7 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
 
 //        PowerManager pm = (PowerManager) this.getContext().getSystemService(this.getContext().POWER_SERVICE);
 //        pm.reboot("Just");
-        String urlS = "https://upload.wikimedia.org/wikipedia/commons/3/39/Lichtenstein_img_processing_test.png";
-        startDownload(urlS);
+        startDownload(getString(R.string.url_ota_info_location));
 
     }
 
@@ -73,17 +72,22 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
     public void showProgressBar() {
         ProgressBar progress = (ProgressBar)getActivity().findViewById(R.id.progressBarFetch);
         progress.setVisibility(View.VISIBLE);
-        progress.setIndeterminate(false);
-        progress.setMax(100);
+        progress.setIndeterminate(true);
+        Button rebootBtn = (Button) mMainView.findViewById(R.id.button);
+        rebootBtn.setEnabled(false);
     }
 
     public void hideProgressBar() {
         ProgressBar progress = (ProgressBar)getActivity().findViewById(R.id.progressBarFetch);
         progress.setVisibility(View.GONE);
+        Button rebootBtn = (Button) mMainView.findViewById(R.id.button);
+        rebootBtn.setEnabled(true);
     }
 
     public void setProgress(int progressVal) {
         ProgressBar progress = (ProgressBar)getActivity().findViewById(R.id.progressBarFetch);
+        progress.setIndeterminate(false);
+        progress.setMax(100);
         progress.setProgress(progressVal);
     }
 

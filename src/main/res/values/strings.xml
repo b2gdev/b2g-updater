@@ -4,4 +4,6 @@
     <string name="str_reboot">Reboot</string>
     <string name="str_update">Update</string>
     <string name="str_last_update_msg">Last checked for updates on: </string>
+    <string name="url_ota_info_location">https://upload.wikimedia.org/wikipedia/commons/3/39/Lichtenstein_img_processing_test.png</string>
+    <string name="path_download_target">/cache/update.zip</string>
 </resources>

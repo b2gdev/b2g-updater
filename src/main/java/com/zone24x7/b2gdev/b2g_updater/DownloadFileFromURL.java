@@ -1,13 +1,11 @@
 package com.zone24x7.b2gdev.b2g_updater;
 
 
+import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Environment;
 import android.os.PowerManager;
-import android.util.Log;
 import android.widget.Toast;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -15,14 +13,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 
 public class DownloadFileFromURL extends AsyncTask<String, Integer, String> {
 
-    MainActivityFragment container;
+    UpdaterFragment container;
     private PowerManager.WakeLock mWakeLock;
 
-    public DownloadFileFromURL(MainActivityFragment f) {
+    public DownloadFileFromURL(UpdaterFragment f) {
         this.container = f;
     }
 
@@ -54,7 +51,8 @@ public class DownloadFileFromURL extends AsyncTask<String, Integer, String> {
             input = connection.getInputStream();
 
             // Output stream
-            final File dest = new File("/sdcard/file_name.extension");
+            //final File dest = new File("/sdcard/file_name.extension");
+            final File dest = new File(container.getActivity().getString(R.string.path_download_target));
             output = new FileOutputStream(dest);
 
             byte data[] = new byte[4096];
@@ -102,7 +100,7 @@ public class DownloadFileFromURL extends AsyncTask<String, Integer, String> {
         super.onPreExecute();
         // take CPU lock to prevent CPU from going off if the user
         // presses the power button during download
-        PowerManager pm = (PowerManager) container.getActivity().getSystemService(container.getActivity().POWER_SERVICE);
+        PowerManager pm = (PowerManager) container.getActivity().getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                 getClass().getName());
         mWakeLock.acquire();
