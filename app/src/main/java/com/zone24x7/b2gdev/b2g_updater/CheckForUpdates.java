@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.StringTokenizer;
 
 
 public class CheckForUpdates  extends AsyncTask<String, Integer, String> {
@@ -48,7 +49,6 @@ public class CheckForUpdates  extends AsyncTask<String, Integer, String> {
                         + " " + connection.getResponseMessage();
             }
 
-            int lengthOfFile = connection.getContentLength();
             input = connection.getInputStream();
             final File dest = new File(container.getActivity().getString(R.string.path_updates));
             output = new FileOutputStream(dest);
@@ -142,39 +142,57 @@ public class CheckForUpdates  extends AsyncTask<String, Integer, String> {
     // Is available update valid?
     private boolean isUpdateValid(String update) {
 
+        if(isVersionNumberNewer(update))
+            if(isValidURLAvailable(update))
+                return true;
+
+        return false;
+    }
+
+    private boolean isVersionNumberNewer(String versionNumber){
+
         boolean retVal = false;
 
-        // Check whether version number is valid
-        if(update.length() == Build.ID.length()){
-            if(update.compareTo(Build.ID) != 0){
-                retVal = true;
-            }
-        }else if(update.compareTo("") != 0){
-            retVal = true;
-        };
+        StringTokenizer versionNumST = new StringTokenizer(versionNumber,"v.-");
+        StringTokenizer currentVersionST = new StringTokenizer(Build.ID,"v.-");
 
-        // Check if assumed URL is valid
-        if(retVal){
-            String tempURL = container.generateDownloadURL(update);
-            if(!URLUtil.isValidUrl(tempURL)) {
-                retVal = false;
-            }else {
-                try {
-                    URL u = new URL(tempURL);
-                    HttpURLConnection.setFollowRedirects(true);
-                    HttpURLConnection huc = (HttpURLConnection) u.openConnection();
-                    huc.setRequestMethod("HEAD");
-                    int tempVal =  huc.getResponseCode();
-                    if (tempVal != HttpURLConnection.HTTP_OK){
-                        retVal = false;
-                        Log.w(TAG, "Error while verifying update : http error=" + tempVal);
-                    }
-                } catch (IOException e) {
-                    retVal = false;
-                    Log.w(TAG, "Error while verifying update : " + e.toString());
-                }
+        while(versionNumST.hasMoreElements() && currentVersionST.hasMoreElements()){
+            String newV = versionNumST.nextToken();
+            String currentV = currentVersionST.nextToken();
+            if(newV.compareTo(currentV) == 0){
+                continue;
+            }else if (newV.compareTo(currentV) < 0)
+                break;
+            else {
+                retVal = true;
+                break;
             }
         }
+
+        return retVal;
+    }
+
+    private boolean isValidURLAvailable(String versionNumber){
+
+        boolean retVal = false;
+
+        String tempURL = container.generateDownloadURL(versionNumber);
+        if (URLUtil.isValidUrl(tempURL)) {
+            try {
+                URL u = new URL(tempURL);
+                HttpURLConnection.setFollowRedirects(true);
+                HttpURLConnection huc = (HttpURLConnection) u.openConnection();
+                huc.setRequestMethod("HEAD");
+                int tempVal = huc.getResponseCode();
+                if (tempVal == HttpURLConnection.HTTP_OK) {
+                    retVal = true;
+                }else
+                    Log.w(TAG, "Error while verifying update : http error=" + tempVal);
+            } catch (IOException e) {
+                Log.w(TAG, "Error while verifying update : " + e.toString());
+            }
+        }
+
         return retVal;
     }
 }
