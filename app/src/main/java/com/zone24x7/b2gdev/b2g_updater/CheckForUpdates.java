@@ -4,27 +4,27 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.PowerManager;
+import android.util.Log;
 import android.webkit.URLUtil;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 
 public class CheckForUpdates  extends AsyncTask<String, Integer, String> {
 
-    UpdaterFragment container;
+    private static String TAG = "b2g-updater";
+    private UpdaterFragment container;
     private PowerManager.WakeLock mWakeLock;
+    private String mResult = null;
 
     public CheckForUpdates(UpdaterFragment f) {
         this.container = f;
@@ -37,7 +37,7 @@ public class CheckForUpdates  extends AsyncTask<String, Integer, String> {
         HttpURLConnection connection = null;
 
         try {
-            URL url = new URL(params[0]);
+            URL url = new URL(container.getString(R.string.url_ota_info_location));
             connection = (HttpURLConnection)url.openConnection();
             connection.connect();
 
@@ -48,15 +48,8 @@ public class CheckForUpdates  extends AsyncTask<String, Integer, String> {
                         + " " + connection.getResponseMessage();
             }
 
-            // this will be useful so that you can show a tipical 0-100%
-            // progress bar
             int lengthOfFile = connection.getContentLength();
-
-            // download the file
             input = connection.getInputStream();
-
-            // Output stream
-            //final File dest = new File(container.getActivity().getString(R.string.path_test_updates));
             final File dest = new File(container.getActivity().getString(R.string.path_updates));
             output = new FileOutputStream(dest);
 
@@ -65,13 +58,10 @@ public class CheckForUpdates  extends AsyncTask<String, Integer, String> {
             long total = 0;
 
             while ((count = input.read(data)) != -1) {
-                // allow canceling with back button
+                // allow canceling
                 if (isCancelled()) {
                     input.close();
                     output.close();
-                    PrintWriter writer = new PrintWriter(dest);
-                    writer.print("");
-                    writer.close();
                     mWakeLock.release();
                     return null;
                 }
@@ -92,6 +82,29 @@ public class CheckForUpdates  extends AsyncTask<String, Integer, String> {
 
             if (connection != null)
                 connection.disconnect();
+        }
+
+        BufferedReader buf = null;
+        try {
+            buf = new BufferedReader(new FileReader(container.getActivity().getString(R.string.path_updates)));
+            mResult = buf.readLine();
+        } catch (IOException e) {
+            mResult = null;
+            return e.toString();
+        }finally {
+            if(buf != null)
+                try {
+                    buf.close();
+                } catch (IOException e) {
+                    // ignore
+                }
+        }
+
+        if(mResult != null) {
+            if (!isUpdateValid(mResult)){
+                mResult = null;
+                return null;
+            }
         }
 
         return null;
@@ -116,32 +129,10 @@ public class CheckForUpdates  extends AsyncTask<String, Integer, String> {
         if(container!=null && container.getActivity()!=null) {
 
             if (result != null) {
-                Toast.makeText(container.getActivity(), "Download error: " + result, Toast.LENGTH_LONG).show();
+                Toast.makeText(container.getActivity(), "Error while checking for updates: " + result, Toast.LENGTH_LONG).show();
                 container.doneUpdates(null);
             }else {
-                //Toast.makeText(container.getActivity(), "Got list of updates", Toast.LENGTH_SHORT).show();
-                BufferedReader buf = null;
-                try {
-                    buf = new BufferedReader(new FileReader(container.getActivity().getString(R.string.path_updates)));
-                    result = buf.readLine();
-                } catch (IOException e) {
-                    result = null;
-                }
-
-                try {
-                    if(buf != null)
-                        buf.close();
-                } catch (IOException e) {
-                    // ignore
-                }
-
-                if(result != null) {
-                    if (!isUpdateValid(result)){
-                        result = null;
-                    }
-                }
-
-                container.doneUpdates(result);
+                container.doneUpdates(mResult);
             }
 
             this.container = null;
@@ -150,7 +141,10 @@ public class CheckForUpdates  extends AsyncTask<String, Integer, String> {
 
     // Is available update valid?
     private boolean isUpdateValid(String update) {
+
         boolean retVal = false;
+
+        // Check whether version number is valid
         if(update.length() == Build.ID.length()){
             if(update.compareTo(Build.ID) != 0){
                 retVal = true;
@@ -159,26 +153,27 @@ public class CheckForUpdates  extends AsyncTask<String, Integer, String> {
             retVal = true;
         };
 
+        // Check if assumed URL is valid
         if(retVal){
             String tempURL = container.generateDownloadURL(update);
             if(!URLUtil.isValidUrl(tempURL)) {
                 retVal = false;
-            }
-            /*
-            else {
+            }else {
                 try {
                     URL u = new URL(tempURL);
+                    HttpURLConnection.setFollowRedirects(true);
                     HttpURLConnection huc = (HttpURLConnection) u.openConnection();
                     huc.setRequestMethod("HEAD");
                     int tempVal =  huc.getResponseCode();
                     if (tempVal != HttpURLConnection.HTTP_OK){
-                        result = null;
+                        retVal = false;
+                        Log.w(TAG, "Error while verifying update : http error=" + tempVal);
                     }
                 } catch (IOException e) {
-                    result = null;
+                    retVal = false;
+                    Log.w(TAG, "Error while verifying update : " + e.toString());
                 }
             }
-            */
         }
         return retVal;
     }

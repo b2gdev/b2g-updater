@@ -95,7 +95,7 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
         showProgressBar();
         setStatus(getString(R.string.status_fetching_updates));
         mUpdateListTask = new CheckForUpdates(this);
-        mUpdateListTask.execute(getString(R.string.url_ota_info_location));
+        mUpdateListTask.execute("");
         setButton(ButtonState.CANCEL);
     }
 
