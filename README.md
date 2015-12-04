@@ -13,3 +13,4 @@
 ### Limitations
 
 * Any update version that is greater than the current build ID will be downloaded without explicitly being checked for compatibility
+* No support to automatically check for updates
