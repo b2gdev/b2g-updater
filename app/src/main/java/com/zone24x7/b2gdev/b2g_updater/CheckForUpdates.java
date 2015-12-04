@@ -2,6 +2,7 @@ package com.zone24x7.b2gdev.b2g_updater;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.PowerManager;
 import android.webkit.URLUtil;
 import android.widget.Toast;
@@ -133,30 +134,52 @@ public class CheckForUpdates  extends AsyncTask<String, Integer, String> {
                 } catch (IOException e) {
                     // ignore
                 }
-                /*
+
                 if(result != null) {
-                    String tempURL = container.generateDownloadURL(result);
-                    if (!URLUtil.isValidUrl(tempURL)) {
+                    if (!isUpdateValid(result)){
                         result = null;
-                    } else {
-                        try {
-                            URL u = new URL(tempURL);
-                            HttpURLConnection huc = (HttpURLConnection) u.openConnection();
-                            huc.setRequestMethod("HEAD");
-                            int tempVal =  huc.getResponseCode();
-                            if (tempVal != HttpURLConnection.HTTP_OK){
-                                result = null;
-                            }
-                        } catch (IOException e) {
-                            result = null;
-                        }
                     }
                 }
-                */
+
                 container.doneUpdates(result);
             }
 
             this.container = null;
         }
+    }
+
+    // Is available update valid?
+    private boolean isUpdateValid(String update) {
+        boolean retVal = false;
+        if(update.length() == Build.ID.length()){
+            if(update.compareTo(Build.ID) != 0){
+                retVal = true;
+            }
+        }else if(update.compareTo("") != 0){
+            retVal = true;
+        };
+
+        if(retVal){
+            String tempURL = container.generateDownloadURL(update);
+            if(!URLUtil.isValidUrl(tempURL)) {
+                retVal = false;
+            }
+            /*
+            else {
+                try {
+                    URL u = new URL(tempURL);
+                    HttpURLConnection huc = (HttpURLConnection) u.openConnection();
+                    huc.setRequestMethod("HEAD");
+                    int tempVal =  huc.getResponseCode();
+                    if (tempVal != HttpURLConnection.HTTP_OK){
+                        result = null;
+                    }
+                } catch (IOException e) {
+                    result = null;
+                }
+            }
+            */
+        }
+        return retVal;
     }
 }
