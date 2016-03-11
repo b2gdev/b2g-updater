@@ -91,7 +91,7 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
 
     // Getting updates
     private void getUpdates() {
-
+        Log.d(TAG,"GetUpdates called");
         showProgressBar();
         setStatus(getString(R.string.status_fetching_updates));
         mUpdateListTask = new CheckForUpdates(this);
@@ -101,7 +101,7 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
 
     // Done getting updates
     public void doneUpdates(String update) {
-
+        Log.d(TAG,"Done updates called");
         Button funcBtn = (Button) mMainView.findViewById(R.id.button);
         funcBtn.setEnabled(false);
         hideProgressBar();
@@ -243,7 +243,7 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
     // Util functions
     private void updateLastCheckedTime(){
         TextView lastEditedLabel = (TextView) mMainView.findViewById(R.id.lastCheckValue);
-        File file = new File(getString(R.string.path_updates));
+        File file = new File(getString(R.string.path_update_info_xml));
         if(file.exists()){
             Date lastModified = new Date(file.lastModified());
             lastEditedLabel.setText(lastModified.toString());
