@@ -44,10 +44,11 @@ public class UpdateCheckerService extends Service {
     private static String TAG = "b2g-updater";
 
     //private final long updatePeriod = 1000*60*60*12; //check every 12 hours
-    private final long updatePeriod = 15000;
+    private final long updatePeriod = 60000;
     private Timer updateTimer;
     private CheckForUpdates mUpdateListTask;
     Intent intent;
+    private String availableUpdateVersion;
 
     private class UpdateTask extends TimerTask {
         public void run() {
@@ -66,9 +67,11 @@ public class UpdateCheckerService extends Service {
     private void showNotification(){
         Log.d(TAG,"Came inside ShowNotifications method");
         if(intent != null) {
-            Log.d(TAG,"Intent inside showNotification method is not null");
+            Log.d(TAG, "Intent inside showNotification method is not null");
             NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             Intent notificationIntent = new Intent(this,MainActivity.class);
+            Log.d(TAG,"Update version passed to UpdaterFragment is "+this.availableUpdateVersion);
+            notificationIntent.putExtra("updateVersion",this.availableUpdateVersion);
             PendingIntent contentIntent = PendingIntent.getActivity(this,0,notificationIntent,0);
             Notification.Builder builder = new Notification.Builder(this);
             builder.setAutoCancel(true);
@@ -123,6 +126,15 @@ public class UpdateCheckerService extends Service {
     }
 
     private boolean updateAvailable(){
+
+        File fileToDelete = new File(getResources().getString(R.string.path_update_info_xml));
+        if(fileToDelete.exists()) {
+            fileToDelete.delete();
+            Log.d(TAG,"File deleted");
+        } else{
+            Log.d(TAG,"Couldn't delete file");
+        }
+
         boolean retVal = false;
 
         OutputStream output = null;
@@ -134,6 +146,8 @@ public class UpdateCheckerService extends Service {
         try {
             URL url = new URL(getString(R.string.url_update_info_file));
             connection = (HttpURLConnection)url.openConnection();
+            connection.setUseCaches(false);
+            connection.setDefaultUseCaches(false);
             connection.connect();
 
             // expect HTTP 200 OK, so we don't mistakenly save error report
@@ -143,8 +157,8 @@ public class UpdateCheckerService extends Service {
             }
 
             input = connection.getInputStream();
-            final File dest = new File(getResources().getString(R.string.path_update_info_xml));
-            output = new FileOutputStream(dest);
+            File dest = new File(getResources().getString(R.string.path_update_info_xml));
+            output = new FileOutputStream(dest,false);
 
             byte data[] = new byte[4096];
             int count;
@@ -161,12 +175,12 @@ public class UpdateCheckerService extends Service {
                 Log.d(TAG,"Current Version : "+currentVersionNumber+" Max.Available Update Version : "+maxUpdateVersion);
             } catch (Exception e) {
                 maxUpdateVersion = null;
-                Log.d(TAG, e.toString());
+                Log.w(TAG, e.toString());
                 return false;
             }
 
         } catch (Exception e) {
-            Log.d(TAG, e.toString());
+            Log.e(TAG, e.toString());
             return false;
         } finally {
             try {
@@ -184,8 +198,10 @@ public class UpdateCheckerService extends Service {
         if(maxUpdateVersion != null) {
             if (!isUpdateValid(currentVersionNumber,maxUpdateVersion)){
                 maxUpdateVersion = null;
+
                 return false;
             }
+            this.availableUpdateVersion = maxUpdateVersion;
             retVal = true;
         }
 
@@ -263,11 +279,11 @@ public class UpdateCheckerService extends Service {
                 }
             }
         } catch (ParserConfigurationException e) {
-            e.printStackTrace();
+            Log.w(TAG,e);
         }   catch (SAXException e) {
-            e.printStackTrace();
+            Log.w(TAG,e);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.w(TAG,e);
         }
 
         return maxEligibleUpdateId;

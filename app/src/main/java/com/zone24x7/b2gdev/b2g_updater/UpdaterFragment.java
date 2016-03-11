@@ -26,8 +26,9 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
     private View mMainView;
     private String mNewUpdateVersion = null;
     private String mNewUpdateUrl = null;
-    private enum ButtonState {CHECK_FOR_UPDATES,CANCEL, DOWNLOAD_UPDATE, APPLY_UPDATE};
+    private enum ButtonState {CHECK_FOR_UPDATES,CANCEL, DOWNLOAD_UPDATE, APPLY_UPDATE, UPDATE_AVAILABLE};
     ButtonState mButtonState;
+    private String availableUpdateVersion;
 
     public UpdaterFragment() {
     }
@@ -42,7 +43,13 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
         funcBtn.setOnClickListener(this);
         setRetainInstance(true);
         updateLastCheckedTime();
-        setButton(ButtonState.CHECK_FOR_UPDATES);
+        this.availableUpdateVersion = MainActivity.availableUpdateVersion;
+        if(this.availableUpdateVersion !=null && this.availableUpdateVersion !="" && this.availableUpdateVersion!="null"){
+            Log.d(TAG,"Came inside update version available : "+this.availableUpdateVersion);
+            setButton(ButtonState.UPDATE_AVAILABLE);
+        } else {
+            setButton(ButtonState.CHECK_FOR_UPDATES);
+        }
         setStatus(getString(R.string.status_empty));
         return mMainView;
     }
@@ -76,6 +83,9 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
                 installOTA();
                 break;
 
+            case UPDATE_AVAILABLE:
+                doneUpdates(this.availableUpdateVersion);
+                break;
             default:
                 break;
         }
@@ -186,7 +196,7 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
 
     // Button toggle functions
     private void setButton(ButtonState state){
-
+        Log.d(TAG,"came inside setButton method and state is : "+state);
         Button functionBtn = (Button) mMainView.findViewById(R.id.button);
 
         switch(state){
@@ -205,6 +215,11 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
             case CANCEL:
                 functionBtn.setText(getText(R.string.btn_cancel));
                 mButtonState = state;
+                break;
+            case UPDATE_AVAILABLE:
+                mButtonState = state;
+                Log.d(TAG,"came inside setButton method 2 and state is : "+state);
+                functionBtn.setText("Update Available");
                 break;
             default:
                 break;
@@ -263,6 +278,7 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         // Sync UI state to current fragment and task state
+        Log.d(TAG,"came inside onActivityCreated method");
         updateLastCheckedTime();
         setButton(mButtonState);
         if(isTaskRunning(mDownloadOTATask)){
@@ -276,5 +292,11 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
             setStatus(getString(R.string.status_empty));
         }
         super.onActivityCreated(savedInstanceState);
+        Log.d(TAG,"Exited successfuly from onActivityCreated method");
+    }
+
+    public void setAvailableUpdateVersion(String availableUpdateVersion) {
+        Log.d(TAG,"setAvailableUpdateVersion called with "+availableUpdateVersion);
+        this.availableUpdateVersion = availableUpdateVersion;
     }
 }

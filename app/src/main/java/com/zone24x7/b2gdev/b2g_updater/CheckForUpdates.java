@@ -42,14 +42,26 @@ public class CheckForUpdates  extends AsyncTask<String, Integer, String> {
     @Override
     protected String doInBackground(String... params) {
         Log.d(TAG,"came inside CheckForUpdates doInBackground");
+
+        File fileToDelete = new File(container.getActivity().getString(R.string.path_update_info_xml));
+        if(fileToDelete.exists()) {
+            fileToDelete.delete();
+            Log.d(TAG,"File deleted");
+        } else{
+            Log.d(TAG,"Couldn't delete file");
+        }
+
         OutputStream output = null;
         InputStream input = null;
         HttpURLConnection connection = null;
         String currentVersionNumber = "";
+        mResult = null;
 
         try {
             URL url = new URL(container.getString(R.string.url_update_info_file));
             connection = (HttpURLConnection)url.openConnection();
+            connection.setDefaultUseCaches(false);
+            connection.setUseCaches(false);
             connection.connect();
 
             // expect HTTP 200 OK, so we don't mistakenly save error report
@@ -60,8 +72,8 @@ public class CheckForUpdates  extends AsyncTask<String, Integer, String> {
             }
 
             input = connection.getInputStream();
-            final File dest = new File(container.getActivity().getString(R.string.path_update_info_xml));
-            output = new FileOutputStream(dest);
+            File dest = new File(container.getActivity().getString(R.string.path_update_info_xml));
+            output = new FileOutputStream(dest,false);
 
             byte data[] = new byte[4096];
             int count;
@@ -108,6 +120,7 @@ public class CheckForUpdates  extends AsyncTask<String, Integer, String> {
                 mResult = null;
                 return null;
             }
+
         }
 
         return mResult;
@@ -269,11 +282,11 @@ public class CheckForUpdates  extends AsyncTask<String, Integer, String> {
                 }
             }
         } catch (ParserConfigurationException e) {
-            e.printStackTrace();
+            Log.w(TAG,e);
         }   catch (SAXException e) {
-            e.printStackTrace();
+            Log.w(TAG,e);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.w(TAG,e);
         }
 
         return maxEligibleUpdateId;
