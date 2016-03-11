@@ -6,11 +6,11 @@
 
 ### Details
 
-* This app gets the latest released version number from the file in the following url https://www.dropbox.com/s/5bzkyu7ik3tkww5/latest-update?dl=1
-* If the latest update's version number is greater than the current devices build ID, it will check for the release update package on GitHub.
+* This app gets the latest released version number from the file in the following url https://github.com/b2gdev//Android-JB-4.1.2/releases/download/
+* If the latest update's version number is greater than the current devices build ID and if its compatible with the device, it will check for the release update package on GitHub. The compatibility is checked using a file at the location https://github.com/mayooran99/b2g-updater/blob/master/app/src/main/updateInfo.xml. Compatible version should be specified in this file manually.
 * Release updates are expected to be in the following format: `https://github.com/b2gdev/Android-JB-4.1.2/releases/download/[version number]/update-[version number].zip`
 
-### Limitations
+### New features
 
-* Any update version that is greater than the current build ID will be downloaded without explicitly being checked for compatibility
-* No support to automatically check for updates
+* Any update version that is greater than the current build ID will be downloaded after explicitly being checked for compatibility
+* support to automatically check for updates
