@@ -43,8 +43,8 @@ public class UpdateCheckerService extends Service {
 
     private static String TAG = "b2g-updater";
 
-    //private final long updatePeriod = 1000*60*60*12; //check every 12 hours
-    private final long updatePeriod = 60000;
+    private final long updatePeriod = 1000*60*60*12; //check every 12 hours
+    //private final long updatePeriod = 60000;
     private Timer updateTimer;
     private CheckForUpdates mUpdateListTask;
     Intent intent;
