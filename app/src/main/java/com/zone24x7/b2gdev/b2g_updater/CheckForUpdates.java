@@ -92,7 +92,8 @@ public class CheckForUpdates  extends AsyncTask<String, Integer, String> {
             }
 
         } catch (Exception e) {
-            return e.toString();
+            Log.e(TAG,"Exception occurred",e);
+            return null;
         } finally {
             try {
                 if (output != null)
@@ -227,7 +228,8 @@ public class CheckForUpdates  extends AsyncTask<String, Integer, String> {
             if (result != null) {
                 container.doneUpdates(result);
             }else {
-                Toast.makeText(container.getActivity(), "Error while checking for updates: " + result, Toast.LENGTH_LONG).show();
+                //Toast.makeText(container.getActivity(), "Error while checking for updates: " + result, Toast.LENGTH_LONG).show();
+                Log.e(TAG,"Error while checking for updates: ");
                 container.doneUpdates(null);
             }
 

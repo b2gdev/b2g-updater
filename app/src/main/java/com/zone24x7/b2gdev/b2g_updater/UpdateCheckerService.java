@@ -53,8 +53,9 @@ public class UpdateCheckerService extends Service {
     private class UpdateTask extends TimerTask {
         public void run() {
             ConnectivityManager connManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo mMobileData = connManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
             NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-            if(mWifi.isConnected()) {
+            if(mWifi.isConnected() || mMobileData.isConnected()) {
                 if (updateAvailable()) {
                     Log.d(TAG, "Update available!");
                     showNotification();

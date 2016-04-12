@@ -1,6 +1,10 @@
 package com.zone24x7.b2gdev.b2g_updater;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.RecoverySystem;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -13,10 +17,26 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.apache.commons.codec.binary.Base64;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Date;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 public class UpdaterFragment extends Fragment implements View.OnClickListener {
 
@@ -112,22 +132,99 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
     // Done getting updates
     public void doneUpdates(String update) {
         Log.d(TAG,"Done updates called");
+        ConnectivityManager connManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        NetworkInfo mMobileData = connManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+
         Button funcBtn = (Button) mMainView.findViewById(R.id.button);
         funcBtn.setEnabled(false);
         hideProgressBar();
         updateLastCheckedTime();
 
-        if(update != null) {
-            mNewUpdateVersion = update;
-            mNewUpdateUrl = generateDownloadURL(update);
-            setUpdateAvailableStatus(update);
-            setButton(ButtonState.DOWNLOAD_UPDATE);
-        }else{
-            setStatus(getString((R.string.status_update_not_available)));
+        if(!mWifi.isConnected() && !mMobileData.isConnected()) {
+            setStatus(getString(R.string.status_not_connected));
             setButton(ButtonState.CHECK_FOR_UPDATES);
+        } else {
+
+            String globalURL = getGlobalUpdatePath(new File(getActivity().getString(R.string.path_update_info_xml)));
+            if (globalURL.isEmpty()) {
+                if (update != null) {
+                    mNewUpdateUrl = generateDownloadURL(update);
+                    mNewUpdateVersion = update;
+
+                    setUpdateAvailableStatus(update);
+                    setButton(ButtonState.DOWNLOAD_UPDATE);
+                } else {
+                    setStatus(getString((R.string.status_update_not_available)));
+                    setButton(ButtonState.CHECK_FOR_UPDATES);
+                }
+            } else {
+
+                mNewUpdateUrl = globalURL;
+                setUpdateAvailableStatus(update);
+                setButton(ButtonState.DOWNLOAD_UPDATE);
+            }
+
+//        if(update != null) {
+//            mNewUpdateVersion = update;
+//            mNewUpdateUrl = generateDownloadURL(update);
+//            setUpdateAvailableStatus(update);
+//            setButton(ButtonState.DOWNLOAD_UPDATE);
+//        }else{
+//
+//            ConnectivityManager connManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+//            NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+//            NetworkInfo mMobileData = connManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+//
+//            if(!mWifi.isConnected() && !mMobileData.isConnected()) {
+//                setStatus(getString(R.string.status_not_connected));
+//                setButton(ButtonState.CHECK_FOR_UPDATES);
+//            }
+//            else {
+//                setStatus(getString((R.string.status_update_not_available)));
+//                setButton(ButtonState.CHECK_FOR_UPDATES);
+//            }
+//        }
+
+            funcBtn.setEnabled(true);
         }
 
-        funcBtn.setEnabled(true);
+    }
+
+    //Get the global update path for the current version
+    private String getGlobalUpdatePath(File file) {
+
+            String updateIDURL="";
+            String versionNumber="";
+
+            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory
+                    .newInstance();
+            DocumentBuilder documentBuilder = null;
+
+        try {
+            documentBuilder = documentBuilderFactory.newDocumentBuilder();
+            Document document = documentBuilder.parse(file);
+            document.getDocumentElement().normalize();
+
+            NodeList versionInfoNodes = document.getElementsByTagName("version");
+
+            for (int versionIdCount = 0; versionIdCount < versionInfoNodes.getLength(); versionIdCount++) {
+                if (versionInfoNodes.item(versionIdCount).getNodeType() == Node.ELEMENT_NODE) {
+                    versionNumber = versionInfoNodes.item(versionIdCount).getAttributes().getNamedItem("id").getNodeValue();
+                    if(versionNumber.equals(Build.ID)) {
+                        updateIDURL = versionInfoNodes.item(versionIdCount).getAttributes().getNamedItem("updateIDURL").getNodeValue();
+                    }
+                }
+            }
+        } catch (ParserConfigurationException e) {
+            Log.e(TAG, "ParserConfiguration exception occurred while retrieving global update path", e);
+        } catch (SAXException e) {
+            Log.e(TAG, "SAXException occured while retrieving global update path",e);
+        } catch (IOException e) {
+            Log.e(TAG, "IOException occurred while retrieving global update path",e);
+        }
+
+            return updateIDURL;
     }
 
     // Getting OTA
@@ -165,18 +262,101 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
         setStatus(getString((R.string.status_installing)));
 
         try {
-            File otaFile = new File(getString(R.string.path_download_target));
+            if(validateCheckSum(new File(getString(R.string.path_update_info_xml)))) {
+                File otaFile = new File(getString(R.string.path_download_target));
 
-            // Verify the cryptographic signature before installing it.
-            RecoverySystem.verifyPackage(otaFile, null, null);
+                // Verify the cryptographic signature before installing it.
+                RecoverySystem.verifyPackage(otaFile, null, null);
 
-            // Reboots the device into recovery mode to install the update package.
-            RecoverySystem.installPackage(getActivity(), otaFile);
+                // Reboots the device into recovery mode to install the update package.
+                RecoverySystem.installPackage(getActivity(), otaFile);
+            } else {
+                Log.e(TAG,"Checksum validation failed");
+                setStatus(getString(R.string.status_install_failed));
+            }
         } catch (IOException | GeneralSecurityException e) {
             Toast.makeText(getActivity(), "Install error: " + e.toString(), Toast.LENGTH_LONG).show();
             Log.e(TAG, "Install error: " + e.toString());
             setStatus(getString((R.string.status_install_failed)));
         }
+    }
+
+    //validate the checksum of the update zip file
+    private boolean validateCheckSum(File fileName){
+        boolean retVal = false;
+        String checksumVal = "";
+        String versionId="";
+
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder documentBuilder = null;
+        try {
+            documentBuilder = documentBuilderFactory.newDocumentBuilder();
+            Document document = documentBuilder.parse(fileName);
+            document.getDocumentElement().normalize();
+
+            NodeList versionInfoNodes = document.getElementsByTagName("version");
+
+            for (int versionIdCount = 0; versionIdCount < versionInfoNodes.getLength(); versionIdCount++) {
+                if (versionInfoNodes.item(versionIdCount).getNodeType() == Node.ELEMENT_NODE) {
+                    versionId = versionInfoNodes.item(versionIdCount).getAttributes().getNamedItem("id").getNodeValue();
+                    checksumVal = versionInfoNodes.item(versionIdCount).getAttributes().getNamedItem("checksum")
+                            .getNodeValue();
+                    if(versionId.equals(Build.ID)) {
+                        if (getMD5String(createChecksumValue(getString(R.string.path_download_target))).equals(checksumVal)) {
+                            retVal = true;
+                        } else {
+                            retVal=false;
+                        }
+                    }
+
+                }
+            }
+        } catch (ParserConfigurationException e) {
+            Log.e(TAG,"ParserConfiguration exception occurred while validating checksum", e);
+        } catch (SAXException e) {
+            Log.e(TAG,"SAXException occured while validating checksum");
+        } catch (IOException e) {
+            Log.e(TAG, "IOException occurred while validating checksum");
+        }
+
+        return retVal;
+
+    }
+
+    //create the checksum value for the downloaded update.zip file
+    static byte[] createChecksumValue(String filename){
+        MessageDigest complete = null;
+        try {
+            InputStream fis = new FileInputStream(filename);
+
+            byte[] buffer = new byte[1024];
+            complete = MessageDigest.getInstance("MD5");
+            int numRead;
+            do {
+                numRead = fis.read(buffer);
+                if (numRead > 0) {
+                    complete.update(buffer, 0, numRead);
+                }
+            } while (numRead != -1);
+            fis.close();
+
+        } catch (FileNotFoundException e) {
+            Log.e(TAG,"File for which the checksum value is to be calculated is not found" , e);
+        } catch (NoSuchAlgorithmException e) {
+            Log.e(TAG,"No such algorithm exception from message digest in createCheckSum method", e);
+        } catch (IOException e) {
+            Log.e(TAG,"No such algorithm exception from message digest in createCheckSum method" , e);
+        }
+        return complete.digest();
+    }
+
+    //convert the MD5 byte array to string
+    static String getMD5String(byte[] hashArray) {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < hashArray.length; ++i) {
+            sb.append(Integer.toHexString((hashArray[i] & 0xFF) | 0x100).substring(1, 3));
+        }
+        return sb.toString();
     }
 
     // Cancel current task
