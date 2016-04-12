@@ -9,6 +9,7 @@
     <string name="status_empty"> </string>
     <string name="status_fetching_updates">Checking for updates..</string>
     <string name="status_update_available">A new update is available</string>
+    <string name="status_not_connected">Unable to connect to internet. Please check your connectivity</string>
     <string name="status_update_not_available">No updates are available</string>
     <string name="status_dl_updates">Downloading update..</string>
     <string name="status_dl_failed">Downloading Failed</string>
@@ -28,5 +29,6 @@
     <string name="path_updates">/cache/latest.version</string>
     <string name="path_update_info_xml">/cache/updateInfo.xml</string>
     <!--<string name="path_updates">/sdcard/file.test</string>-->
-    <string name="url_update_info_file">https://raw.githubusercontent.com/b2gdev/Android-JB-4.1.2/dev/device/ti/beagleboard/updateInfo.xml</string>
+    <string name="url_update_info_file">https://raw.githubusercontent.com/b2gdev/Android-JB-4.1.2/user/device/ti/beagleboard/updateInfo.xml</string>
+
 </resources>

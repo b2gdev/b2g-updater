@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <versionInfo>
-    <version id="1.0.0.0" maxUpdateId="2.3.12.1000"/>
-    <version id="2.1.12.2234" maxUpdateId="3.2.12.1345"/>
+    <version id="v1.0.0.0" maxUpdateId="2.3.12.1000" updateIDURL="" checksum="zMAhK12ddMdPxQLW8r75rQ==" />
+    <version id="v4.4.1" maxUpdateId="v4.5.1" updateIDURL="https://github.com/mayooran99/Android-JB-4.1.2/releases/download/v4.5.2/update-v4.5.2.zip" checksum="mPNVIPeg52tzX2a9l8n5Lw==" />
 </versionInfo>
