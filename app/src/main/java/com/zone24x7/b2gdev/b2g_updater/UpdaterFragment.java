@@ -161,6 +161,7 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
             } else {
 
                 mNewUpdateUrl = globalURL;
+                mNewUpdateVersion = update;
                 setUpdateAvailableStatus(update);
                 setButton(ButtonState.DOWNLOAD_UPDATE);
             }

@@ -318,26 +318,67 @@ public class CheckForUpdates  extends AsyncTask<String, Integer, String> {
     }
 
     private boolean isValidURLAvailable(String versionNumber){
-
         boolean retVal = false;
+        String globalURL = getGlobalUpdatePath(new File(container.getActivity().getString(R.string.path_update_info_xml)));
+        if(globalURL!=null && !globalURL.isEmpty()) {
+            return true;
+        } else {
 
-        String tempURL = container.generateDownloadURL(versionNumber);
-        if (URLUtil.isValidUrl(tempURL)) {
-            try {
-                URL u = new URL(tempURL);
-                HttpURLConnection.setFollowRedirects(true);
-                HttpURLConnection huc = (HttpURLConnection) u.openConnection();
-                huc.setRequestMethod("HEAD");
-                int tempVal = huc.getResponseCode();
-                if (tempVal == HttpURLConnection.HTTP_OK) {
-                    retVal = true;
-                }else
-                    Log.w(TAG, "Error while verifying update : http error=" + tempVal);
-            } catch (IOException e) {
-                Log.w(TAG, "Error while verifying update : " + e.toString());
+            String tempURL = container.generateDownloadURL(versionNumber);
+            if (URLUtil.isValidUrl(tempURL)) {
+                try {
+                    URL u = new URL(tempURL);
+                    HttpURLConnection.setFollowRedirects(true);
+                    HttpURLConnection huc = (HttpURLConnection) u.openConnection();
+                    huc.setRequestMethod("HEAD");
+                    int tempVal = huc.getResponseCode();
+                    if (tempVal == HttpURLConnection.HTTP_OK) {
+                        retVal = true;
+                    } else
+                        Log.w(TAG, "Error while verifying update : http error=" + tempVal);
+                } catch (IOException e) {
+                    Log.w(TAG, "Error while verifying update : " + e.toString());
+                }
             }
         }
 
         return retVal;
+    }
+
+
+    //Get the global update path for the current version
+    private String getGlobalUpdatePath(File file) {
+
+        String updateIDURL="";
+        String versionNumber="";
+
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory
+                .newInstance();
+        DocumentBuilder documentBuilder = null;
+
+        try {
+            documentBuilder = documentBuilderFactory.newDocumentBuilder();
+            Document document = documentBuilder.parse(file);
+            document.getDocumentElement().normalize();
+
+            NodeList versionInfoNodes = document.getElementsByTagName("version");
+
+            for (int versionIdCount = 0; versionIdCount < versionInfoNodes.getLength(); versionIdCount++) {
+                if (versionInfoNodes.item(versionIdCount).getNodeType() == Node.ELEMENT_NODE) {
+                    versionNumber = versionInfoNodes.item(versionIdCount).getAttributes().getNamedItem("id").getNodeValue();
+                    if(versionNumber.equals(Build.ID)) {
+                        updateIDURL = versionInfoNodes.item(versionIdCount).getAttributes().getNamedItem("updateIDURL").getNodeValue();
+                    }
+                }
+            }
+        } catch (ParserConfigurationException e) {
+            Log.e(TAG, "ParserConfiguration exception occurred while retrieving global update path", e);
+        } catch (SAXException e) {
+            Log.e(TAG, "SAXException occured while retrieving global update path",e);
+        } catch (IOException e) {
+            Log.e(TAG, "IOException occurred while retrieving global update path",e);
+        }
+
+        return updateIDURL;
     }
 }
