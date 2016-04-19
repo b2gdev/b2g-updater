@@ -118,8 +118,7 @@ public class DownloadFileFromURL extends AsyncTask<String, Integer, String> {
             if (result != null) {
                 Toast.makeText(container.getActivity(), "Download error: " + result, Toast.LENGTH_LONG).show();
                 Log.e(TAG, "Download error: " + result);
-            }else
-                Toast.makeText(container.getActivity(),"Update downloaded", Toast.LENGTH_SHORT).show();
+            }
 
             this.container.doneDownloadingOTA(result);
             this.container = null;

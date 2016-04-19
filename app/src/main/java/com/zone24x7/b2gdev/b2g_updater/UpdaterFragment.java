@@ -251,10 +251,12 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
             setButton(ButtonState.DOWNLOAD_UPDATE);
         }else{
             if(validateCheckSum(new File(getString(R.string.path_update_info_xml)))) {
+                Toast.makeText(getActivity(),"Update downloaded", Toast.LENGTH_SHORT).show();
                 setStatus(getString((R.string.status_dl_done)));
                 setButton(ButtonState.APPLY_UPDATE);
             } else {
                 Log.e(TAG,"Checksum validation failed");
+                Toast.makeText(getActivity(),"Download error: checksum failed", Toast.LENGTH_SHORT).show();
                 setStatus(getString((R.string.status_dl_failed)));
                 setButton(ButtonState.DOWNLOAD_UPDATE);
             }
