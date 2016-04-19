@@ -250,9 +250,18 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
             setStatus(getString((R.string.status_dl_failed)));
             setButton(ButtonState.DOWNLOAD_UPDATE);
         }else{
-            setStatus(getString((R.string.status_dl_done)));
-            setButton(ButtonState.APPLY_UPDATE);
+            if(validateCheckSum(new File(getString(R.string.path_update_info_xml)))) {
+                setStatus(getString((R.string.status_dl_done)));
+                setButton(ButtonState.APPLY_UPDATE);
+            } else {
+                Log.e(TAG,"Checksum validation failed");
+                setStatus(getString((R.string.status_dl_failed)));
+                setButton(ButtonState.DOWNLOAD_UPDATE);
+            }
+
         }
+
+
 
         funcBtn.setEnabled(true);
     }
@@ -263,18 +272,15 @@ public class UpdaterFragment extends Fragment implements View.OnClickListener {
         setStatus(getString((R.string.status_installing)));
 
         try {
-            if(validateCheckSum(new File(getString(R.string.path_update_info_xml)))) {
-                File otaFile = new File(getString(R.string.path_download_target));
 
-                // Verify the cryptographic signature before installing it.
-                RecoverySystem.verifyPackage(otaFile, null, null);
+            File otaFile = new File(getString(R.string.path_download_target));
 
-                // Reboots the device into recovery mode to install the update package.
-                RecoverySystem.installPackage(getActivity(), otaFile);
-            } else {
-                Log.e(TAG,"Checksum validation failed");
-                setStatus(getString(R.string.status_install_failed));
-            }
+            // Verify the cryptographic signature before installing it.
+            RecoverySystem.verifyPackage(otaFile, null, null);
+
+            // Reboots the device into recovery mode to install the update package.
+            RecoverySystem.installPackage(getActivity(), otaFile);
+
         } catch (IOException | GeneralSecurityException e) {
             Toast.makeText(getActivity(), "Install error: " + e.toString(), Toast.LENGTH_LONG).show();
             Log.e(TAG, "Install error: " + e.toString());
