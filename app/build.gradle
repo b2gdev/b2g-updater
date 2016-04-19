@@ -8,8 +8,8 @@ android {
         applicationId "com.zone24x7.b2gdev.b2g_updater"
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 3
-        versionName "3.0"
+        versionCode 4
+        versionName "3.1"
     }
     buildTypes {
         release {
